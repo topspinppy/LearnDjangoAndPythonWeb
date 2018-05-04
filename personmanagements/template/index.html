@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase.js"></script>
+     <!-- Compiled and minified CSS -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+
+     <!-- Compiled and minified JavaScript -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <script>
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyCA-62mPeUqSwptK7v4zJn3gig10oldCt8",
+        authDomain: "dbtest-3b0d9.firebaseapp.com",
+        databaseURL: "https://dbtest-3b0d9.firebaseio.com",
+        projectId: "dbtest-3b0d9",
+        storageBucket: "dbtest-3b0d9.appspot.com",
+        messagingSenderId: "85747182079"
+    };
+    firebase.initializeApp(config);
+    </script>
+</head>
+<body>
+    <h1>จัดการนักศึกษา</h1>
+    <center>
+        <fieldset>
+            ชื่อ <input type="text" id="name_student" /></br>
+            นามสกุล <input type="text" id="surname_student" /></br>
+            <input type="button" value="ส่งค่า" onClick="saveOnClick();"/>
+        </fieldset>
+    </center>
+    <ul class="collection">
+        <div id='id'></div>
+        <div id="name"></div>
+    </ul>
+              
+    <script>
+    var keys = '';
+    function saveOnClick()
+    {
+        var name = document.getElementById('name_student').value;
+        var surname = document.getElementById('surname_student').value;
+        insert(name,surname);
+    }
+    function insert(name,surname)
+    {
+        var firebaseRef = firebase.database().ref("user");
+        firebaseRef.push({
+            name: name,
+            surname: surname
+        });
+        alert("สำเร็จ");
+    }
+    
+    function printObject(o) 
+    {
+        var out = '';
+        for (var p in o) {
+            out += p + ': ' + o[p] + '\n';
+        }
+        return out;
+    }
+    var firebaseRef = firebase.database().ref("user").orderByKey();
+    firebaseRef.once('value').then(function(snapShot){
+        snapShot.forEach(function(childSnapshot){
+            var key = childSnapshot.key;
+            var student = childSnapshot.val();
+            var returnObject = printObject(student);
+            $("#id").append("<li class='collection-item avatar'> <i class='material-icons circle red'>play_arrow</i> <span class='title'>คุณชื่อ</span>"+returnObject+"<li>");
+            document.getElementById("name").innerHTML = "<input type='submit' id='dels'>";
+            $('#dels').click(function(){ del(key); return false; });
+        });
+    });
+
+    function del(keys)
+    {
+        var firebaseRef = firebase.database().ref("user/"+keys);
+
+        firebaseRef.remove().then(function() {
+            alert("Success");
+        }).catch(function(error) {
+            console.log("Remove Failed: " + error.message);
+        })
+    }
+    </script>
+</body>
+</html>
